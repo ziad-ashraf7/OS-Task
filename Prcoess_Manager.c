@@ -113,7 +113,10 @@ int main() {
                 break;
             case 3:
                 printf("Enter command to run: ");
-                scanf("%s", cmd);
+                getchar(); // Consume the newline left by previous scanf
+                fgets(cmd, sizeof(cmd), stdin);
+                // Remove trailing newline
+                cmd[strcspn(cmd, "\n")] = 0;
                 run_process(cmd);
                 break;
             case 4:
