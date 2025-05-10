@@ -60,17 +60,21 @@ void list_processes_by_user() {
     closedir(dir);
 
 }
-
 void run_process(const char *cmd) {
     if (fork() == 0) {
-        execlp(cmd, cmd, NULL);
+        setenv("DISPLAY", ":0", 1); 
+        setenv("XAUTHORITY", "/run/user/1000/gdm/Xauthority", 1);
+
+        execl("/bin/sh", "sh", "-c", cmd, (char *) NULL);
+
         perror("Failed to start process");
         exit(EXIT_FAILURE);
     }
 }
 
+
 void stop_process(pid_t pid) {
-    if (kill(pid, SIGTERM) == 0)
+    if (kill(pid, SIGKILL) == 0)
         printf("Process %d terminated.\n", pid);
     else
         perror("Failed to terminate process");
