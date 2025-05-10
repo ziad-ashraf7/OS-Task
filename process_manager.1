@@ -1,0 +1,120 @@
+.TH PROCESS_MANAGER 1 "May 2024" "1.0" "Process Manager Manual"
+.SH NAME
+process_manager \- Manage processes with PID control, user filtering, and signal sending
+.SH SYNOPSIS
+.B process_manager
+.RS
+[INTERACTIVE MENU]
+.RE
+.SH DESCRIPTION
+A C-based tool to inspect and control running processes. Supports:
+.RS
+.IP \(bu 3
+Listing all processes (scans \fI/proc\fP).
+.IP \(bu 3
+Grouping processes by Linux user (extracts UID from \fI/proc/[pid]/status\fP).
+.IP \(bu 3
+Running new processes (with GUI support via \fIDISPLAY\fP and \fIXAUTHORITY\fP).
+.IP \(bu 3
+Killing processes (\fISIGKILL\fP) or sending custom signals.
+.RE
+.SH OPTIONS
+Interactive menu options:
+.TP
+.B 1
+\fBList all processes\fP
+Scans \fI/proc\fP for numeric directories (PIDs) using \fIopendir()\fP and \fIreaddir()\fP.
+.TP
+.B 2
+\fBList by user\fP
+Groups PIDs by username after resolving UIDs from \fI/proc/[pid]/status\fP (uses \fIgetpwuid()\fP).
+.TP
+.B 3
+\fBRun a process\fP
+Forks and executes commands via \fI/bin/sh -c\fP. Sets \fIDISPLAY=:0\fP for GUI apps.
+.RS
+.IP "Example:"
+.nf
+firefox
+ls \-la /tmp
+.fi
+.RE
+.TP
+.B 4
+\fBKill a process\fP
+Sends \fISIGKILL\fP (signal 9) using \fIkill()\fP.
+.TP
+.B 5
+\fBSend custom signal\fP
+Sends any signal (e.g., \fISIGTERM\fP=15) via \fIkill()\fP.
+.TP
+.B 0
+Exit the program.
+.SH SIGNAL EXAMPLES
+.TP
+.B 1 (SIGHUP)
+Reload a process (e.g., daemons).
+.TP
+.B 2 (SIGINT)
+Interrupt (like Ctrl+C).
+.TP
+.B 9 (SIGKILL)
+Force terminate (ungraceful).
+.TP
+.B 15 (SIGTERM)
+Graceful termination (default for \fIkill\fP).
+.SH CODE DETAILS
+.IP \(bu 3
+\fBUID Resolution\fP: Reads \fIUid:\fP field from \fI/proc/[pid]/status\fP.
+.IP \(bu 3
+\fBGUI Support\fP: Hardcodes \fIXAUTHORITY=/run/user/1000/gdm/Xauthority\fP (adjust for multi-user systems).
+.IP \(bu 3
+\fBError Handling\fP: Checks \fIkill()\fP return values and prints errors via \fIperror()\fP.
+.SH EXAMPLES
+Start Firefox:
+.PP
+.nf
+.RS
+$ ./process_manager
+3
+firefox
+.RE
+.fi
+.PP
+Kill PID 1234:
+.PP
+.nf
+.RS
+$ ./process_manager
+4
+1234
+.RE
+.fi
+.PP
+Send SIGTERM to PID 5678:
+.PP
+.nf
+.RS
+$ ./process_manager
+5
+5678
+15
+.RE
+.fi
+.SH FILES
+.TP
+.I /proc
+Process information directory (scanned by the tool).
+.TP
+.I /run/user/1000/gdm/Xauthority
+X11 authority file (modify if not using GDM).
+.SH AUTHOR
+Ziad (ziad.ashraf.cs@gmail.com)
+.SH BUGS
+- Hardcoded \fIXAUTHORITY\fP path may fail on non-GDM systems.
+- No batch mode (interactive only).
+.SH SEE ALSO
+.BR ps (1),
+.BR kill (1),
+.BR proc (5),
+.BR xauth (1)
