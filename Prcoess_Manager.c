@@ -74,7 +74,7 @@ void run_process(const char *cmd) {
 
 
 void stop_process(pid_t pid) {
-    if (kill(pid, SIGKILL) == 0)
+    if (kill(pid, 9) == 0)
         printf("Process %d terminated.\n", pid);
     else
         perror("Failed to terminate process");
@@ -113,9 +113,8 @@ int main() {
                 break;
             case 3:
                 printf("Enter command to run: ");
-                getchar(); // Consume the newline left by previous scanf
+                getchar();
                 fgets(cmd, sizeof(cmd), stdin);
-                // Remove trailing newline
                 cmd[strcspn(cmd, "\n")] = 0;
                 run_process(cmd);
                 break;
